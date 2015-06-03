@@ -1,6 +1,6 @@
 
 get_awards_players <- function(){
-  data <- read.table("data/AwardsPlayers.txt", sep = ",")
+  data <- read.table("data/AwardsPlayers.txt", sep = ",", stringsAsFactors = F)
   names(data) <- c("playerID",
   "awardID",
   "yearID",
@@ -12,7 +12,7 @@ get_awards_players <- function(){
 }
 
 get_batting <- function(){
-  data <- read.table("data/Batting.txt", sep = ",")
+  data <- read.table("data/Batting.txt", sep = ",", stringsAsFactors = F)
   names(data) <- c(  "playerID",
                      "yearID",
                      "stint",
@@ -42,7 +42,7 @@ get_batting <- function(){
 }
 
 get_fielding <- function(){
-  data <- read.table("data/Fielding.txt", sep = ",")
+  data <- read.table("data/Fielding.txt", sep = ",", stringsAsFactors = F)
   names(data) <- c(  "playerID",
                      "yearID",
                      "stint",
@@ -69,7 +69,7 @@ get_fielding <- function(){
 }
 
 get_salaries <- function(){
-  data <- read.table("data/Salaries.txt", sep = ",")
+  data <- read.table("data/Salaries.txt", sep = ",", stringsAsFactors = F)
   names(data) <- c("yearID",
                    "teamID",
                    "lgID",
@@ -80,7 +80,7 @@ get_salaries <- function(){
 }
 
 get_teams <- function(){
-  data <- read.table("data/Teams.txt", sep = ",")
+  data <- read.table("data/Teams.txt", sep = ",", stringsAsFactors = F)
   names(data) <- c("yearID",
                    "lgID",
                    "teamID",

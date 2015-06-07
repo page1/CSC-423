@@ -1,0 +1,57 @@
+---
+title: "Baseball Data Analysis"
+output: pdf_document
+---
+
+```{r include = FALSE}
+library(ggplot2)
+library(dplyr)
+source("analyse.R")
+load("silver_slug_model.Rdata")
+```
+
+# Introduction
+
+# Model of Silver Slugger Award
+
+## Full Model
+
+```{r include = FALSE}
+print_original_model <- colnames(select(model_backwards_selection$data, -win_silver_slug)) %>%
+                          paste(collapse = " + ") %>%
+                          paste("win_silver_slug = ", ., sep = "")
+```
+
+The original model was: 
+**`r print_original_model`**
+
+## Analysis
+
+```{r}
+plot_all_box(which(colnames(batting_data) == "win_silver_slug"), batting_data)
+```
+
+# Model Selection
+
+```{r include = FALSE}
+print_back_selected_model <- paste(model_backwards_selection$coefficients, names(model_backwards_selection$coefficients), sep = " * ")
+print_back_selected_model[1] <- model_backwards_selection$coefficients[1]
+print_back_selected_model <- paste(print_back_selected_model, collapse = " + ")
+print_back_selected_model <- paste("log(odds(win_silver_slug)) = ", print_back_selected_model, sep = "")
+```
+
+After backward selection the model that was chosen was:
+**`r print_back_selected_model`**
+
+## Finding a Optimal Cut Off
+
+```{r message=FALSE, warning=FALSE}
+plot_of_cut_offs
+```
+
+After searching for a good cut off value, `r best_cut_off["cut_offs"]` was chosen.
+
+```{r simple_tables=TRUE}
+best_cut_off
+```
+

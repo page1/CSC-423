@@ -1,6 +1,7 @@
 library(dplyr)
 source("get.R")
 source("munge.R")
+source("analyse.R")
 
 main <- function(){
   awards <- get_awards_players()
@@ -9,11 +10,13 @@ main <- function(){
   salaries <- get_salaries()
   teams <- get_teams()
   
-  data <- join_data(batting, fielding, salaries, teams, awards)
+  data <- join_data(batting, fielding, salaries, teams, awards) %>%
+            fix_factors() %>%        
+            add_award_cols()
+            
   
-  filter(batting, playerID == "aardsda01")
-  filter(data, playerID == "aardsda01")
+  data_summary(data)
   
-  hist(data$stint.x)
-  
+  model_silver_slug(data)
+
 }

@@ -29,6 +29,15 @@ data_summary <- function(data){
                 group_by(yearID) %>%
                 summarize(players = n_distinct(playerID),
                           teams = n_distinct(teamID))
+  
+  save(data,
+       player_count,
+       man_years,
+       award_count,
+       award_winners,
+       players_by_pos,
+       by_year,
+       file = "data_summary.Rdata")
 }
 
 plot_all_box <- function(split_col, data){
@@ -83,7 +92,7 @@ model_silver_slug <- function(data){
     mutate(row_num = row_number()) %>%
     filter(row_num == 1) %>%
     ungroup() %>%
-    select(yearID, stint, batting_cols, win_silver_slug) %>%
+    select(salary, batting_cols, win_silver_slug) %>%
     filter(complete.cases(.))
 
   model <- glm(win_silver_slug ~ ., data = batting_data, family = binomial())

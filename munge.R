@@ -42,6 +42,17 @@ fix_factors <- function(data){
   return(data)
 }
 
+add_batting_ratios <- function(data){
+  data <- data %>%
+            mutate(b_hits_per_AB = b_H / b_AB,
+                   b_runs_per_AB = b_R / b_AB,
+                   b_runs_per_H = b_R / b_H,
+                   b_home_runs_per_H = b_HR / b_H,
+                   b_balls_per_AB = b_BB / b_AB,
+                   b_RBI_per_H = b_RBI / b_H,
+                   b_HBP_per_AB = b_HBP / b_AB)
+}
+
 add_award_cols <- function(data){
   data <- data %>%
             mutate(win_silver_slug = ifelse(is.na(awardID), F, awardID == "Silver Slugger"))

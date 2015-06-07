@@ -12,7 +12,8 @@ main <- function(){
   
   data <- join_data(batting, fielding, salaries, teams, awards) %>%
             fix_factors() %>%        
-            add_award_cols()
+            add_award_cols() %>%
+            add_batting_ratios()
             
   
   data_summary(data)

@@ -6,32 +6,85 @@ output: pdf_document
 ```{r include = FALSE}
 library(ggplot2)
 library(dplyr)
+library(lm.beta)
+library(car)
 source("analyse.R")
+load("data_summary.Rdata")
 load("silver_slug_model.Rdata")
 ```
 
-# Introduction
+# Exploratory analysis of the data
 
-# Model of Silver Slugger Award
+The data set contains baseball player data from `r min(by_year$yearID)` to `r max(by_year$yearID)`. Records are maintained on each player, for each year, team, league, stint, and fielding position they played. Overall, `r player_count` unique players are recorded in the data set, covering `r man_years` man years.
 
-## Full Model
+```{r}
+ggplot(by_year, aes(x = as.factor(yearID), y = players)) +
+  geom_bar(stat = "identity", fill = "Blue") +
+  xlab("Year") +
+  ggtitle("Players per Year") +
+  theme(axis.text.x = element_text(angle = -60, hjust = -0))
+```
 
+## Batting Data Exploration
+
+Batting data was recorded including:
+
+* b_G - 
+* b_G_batting
+* b_AB - At Bats
+* b_R - Runs
+* b_H - Hits
+* b_2B - Doubls
+* b_3B - Tripples
+* b_HR - Home Runs
+* b_RBI - Runs Batted In
+* b_SB - Stolen Bases
+* b_CS - Caught Stealing
+* b_BB - Bases on Balls (Walks)
+* b_SO - Strikeouts
+* b_IBB - Intentional Bases on Balls (Walks)
+* b_HBP - Hit By Pitch
+* b_SH - Sacrifice Hits (Bunts)
+* b_SF - Sacrifice Flies
+* b_GIDP
+* b_G_old
+
+In addition to the baseball statistics provided, several additional ratios were computed to normalise the data:
+
+* b_hits_per_AB - Hits per At Bat
+* b_runs_per_AB - Runs per At Bat
+* b_runs_per_H - Runs per Hit
+* b_home_runs_per_AB - Home Runs per At Bat
+* b_balls_per_AB - Balls per At Bat
+* b_RBI_per_H - Runs Batted In per Hit
+* b_HBP_per_AB - Hit By Pitch per At Bat
+
+Finaly, award data was considered:
+
+```{r}
+ggplot(filter(award_winners, !is.na(awardID)), aes(x = as.factor(awardID), y = players)) +
+  geom_bar(stat = "identity", fill = "Blue") +
+  xlab("Award") +
+  ggtitle("Unique Players") +
+  theme(axis.text.x = element_text(angle = -60, hjust = -0))
+```
+
+As we can see, the silver slugger award has the most winners contained in the data set. As a result of this, it was chosen as the dependent variable.
+
+The dataset also contained team, league, & fielding data that was not considered.
+
+# Model selection
+To model the likelyhood that a player would recived the Silver Slugger Award a Logistic Regression was performed. Since the Silver Slugger is a batting award recognising players of high offensive value, the batting data set was used. According to wikipedia, the baseball coaches vote for players on other teams to win based on several batting ratios that we were able to derive from our raw count data.
+
+## Full Model:
 ```{r include = FALSE}
 print_original_model <- colnames(select(model_backwards_selection$data, -win_silver_slug)) %>%
                           paste(collapse = " + ") %>%
                           paste("win_silver_slug = ", ., sep = "")
 ```
+>`r print_original_model`
 
-The original model was: 
-**`r print_original_model`**
-
-## Analysis
-
-```{r}
-plot_all_box(which(colnames(batting_data) == "win_silver_slug"), batting_data)
-```
-
-# Model Selection
+## Backward Selected Model
 
 ```{r include = FALSE}
 print_back_selected_model <- paste(model_backwards_selection$coefficients, names(model_backwards_selection$coefficients), sep = " * ")
@@ -39,9 +92,22 @@ print_back_selected_model[1] <- model_backwards_selection$coefficients[1]
 print_back_selected_model <- paste(print_back_selected_model, collapse = " + ")
 print_back_selected_model <- paste("log(odds(win_silver_slug)) = ", print_back_selected_model, sep = "")
 ```
+>`r print_back_selected_model`
 
-After backward selection the model that was chosen was:
-**`r print_back_selected_model`**
+## Check Fit
+
+```{r}
+batting_data[which(colnames(batting_data) %in% c("win_silver_slug", names(model_backwards_selection$coefficients)))] %>%
+plot_all_box(which(colnames(.) == "win_silver_slug"), .)
+```
+
+```{r}
+vif(model_backwards_selection)
+```
+
+```{r}
+lm.beta(model_backwards_selection)
+```
 
 ## Finding a Optimal Cut Off
 

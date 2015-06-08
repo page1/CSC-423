@@ -17,7 +17,7 @@ load("silver_slug_model.Rdata")
 
 The data set contains baseball player data from `r min(by_year$yearID)` to `r max(by_year$yearID)`. Records are maintained on each player, for each year, team, league, stint, and fielding position they played. Overall, `r player_count` unique players are recorded in the data set, covering `r man_years` man years.
 
-```{r}
+```{r echo=FALSE}
 ggplot(by_year, aes(x = as.factor(yearID), y = players)) +
   geom_bar(stat = "identity", fill = "Blue") +
   xlab("Year") +
@@ -62,7 +62,7 @@ In addition to the baseball statistics provided, several additional ratios were 
 
 Finaly, award data was considered:
 
-```{r}
+```{r echo=FALSE}
 ggplot(filter(award_winners, !is.na(awardID)), aes(x = as.factor(awardID), y = players)) +
   geom_bar(stat = "identity", fill = "Blue") +
   xlab("Award") +
@@ -102,7 +102,7 @@ print_back_selected_model <- paste("log(odds(win_silver_slug)) = ", print_back_s
 
 ## MultiColinearity
 
-```{r}
+```{r echo=FALSE}
 vif(model_backwards_linear)
 ```
 
@@ -138,6 +138,9 @@ print_back_selected_model <- paste("log(odds(win_silver_slug)) = ", print_back_s
 ```
 >`r print_back_selected_model`
 
+```{r echo=FALSE}
+vif(model_backwards_final_lm)
+```
 
 We now have a final model with only significant variables and have removed variables with multicolinearity:
 
@@ -149,7 +152,7 @@ We now have a final model with only significant variables and have removed varia
 
 ## Check Fit
 
-```{r}
+```{r echo=FALSE}
 batting_data[which(colnames(batting_data) %in% c("win_silver_slug", names(model_backwards_final$coefficients)))] %>%
 plot_all_box(which(colnames(.) == "win_silver_slug"), .)
 ```
@@ -159,7 +162,7 @@ TODO: Clean up graphs, explain graphs
 
 ## Leverage Points
 
-```{r}
+```{r echo=FALSE}
 influencePlot(model_backwards_final, labels= paste(batting_data$playerID, batting_data$yearID))
 ```
 
@@ -167,7 +170,7 @@ ToDO: add info about influential points and what looked into (bonds, steroid use
 
 ## Strongest Model Predictors
 
-```{r}
+```{r echo=FALSE}
 lm.beta(model_backwards_final)
 ```
 
@@ -197,13 +200,33 @@ ToDo: Compute two predictions here and explain
 
 ToDo: Make this section look nice
 
-```{r message=FALSE, warning=FALSE}
+```{r message=FALSE, warning=FALSE, echo=FALSE}
 plot_of_cut_offs
 ```
 
 After searching for a good cut off value, `r best_cut_off["cut_offs"]` was chosen.
 
-```{r simple_tables=TRUE}
+```{r echo=FALSE}
 best_cut_off
 ```
 
+## Cross Validation
+After running 5 fold cross validation, 5 times for a total of 25 trials, the following metrics were computed:
+
+```{r echo=FALSE}
+boxplot(cross_validated_results[,c("accuracy", "specificity")],
+        main = "Cross Validated Metrics",
+        ylab = "Value of Metric",
+        xlab = "Metric")
+```
+
+We can see that the Accuracy and Specificity of the cross validated models is fairly stable and high. This is to be expected due since the vast majority of players do not win awards each year.
+
+```{r echo=FALSE}
+boxplot(cross_validated_results[,c("recall", "precision", "f_measure")],
+        main = "Cross Validated Metrics",
+        ylab = "Value of Metric",
+        xlab = "Metric")
+```
+
+We can see that the model has a mean recall of `r round(mean(cross_validated_results$recall), digits = 2)` meaning `r round(mean(cross_validated_results$recall), digits = 2) * 100`% of the players each year that won an award were correctly labled. Since the mean precision is `r round(mean(cross_validated_results$precision), digits = 2)`, `r round(mean(cross_validated_results$precision), digits = 2) * 100`% of the players the model predicts to win, actually do so.

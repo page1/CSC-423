@@ -86,17 +86,16 @@ print_original_model <- colnames(select(model_backwards_selection$data, -win_sil
 >`r print_original_model`
 
 
-We tested both backward selection and stepwise selection routines. They both concluded with the same model - we simply just took the backward selection model. We were satisfied with the result and did not pursue additional selection procedures.
+We tested both backward selection and stepwise selection routines. They both concluded with the same model - we simply used the backward selection model. We did not pursue additional selection procedures.
 
 ## Backward Selected Model
 
-ToDo: clean up numbers (round them)
-
 ```{r include = FALSE}
-print_back_selected_model <- paste(model_backwards_selection$coefficients, names(model_backwards_selection$coefficients), sep = " * ")
-print_back_selected_model[1] <- model_backwards_selection$coefficients[1]
+print_back_selected_model <- paste(round(model_backwards_selection$coefficients, digits = 2), names(model_backwards_selection$coefficients), sep = " * ")
+print_back_selected_model[1] <- round(model_backwards_selection$coefficients[1],digits = 2)
 print_back_selected_model <- paste(print_back_selected_model, collapse = " + ")
 print_back_selected_model <- paste("log(odds(win_silver_slug)) = ", print_back_selected_model, sep = "")
+```
 ```
 >`r print_back_selected_model`
 
@@ -107,7 +106,7 @@ print_back_selected_model <- paste("log(odds(win_silver_slug)) = ", print_back_s
 vif(model_backwards_linear)
 ```
 
-Since we are dealing with a logistic  model, we had to create a linear "side model" for multicolinearity testing purposes based on the backward selected model. Unfortunately the VIF analysis shows that we have a plethora of multiconinearity issues. This does however make sense as much of the x-variables are depenedent on one another. For example, there cannot be a run without a hit (normally speaking; being walked is a possibility as well).
+Since we are dealing with a logistic  model, we had to create a linear "side model" for multicolinearity testing purposes based on the backward selected model. Unfortunately the VIF analysis shows that we have a plethora of multiconinearity issues. This does however make sense as much of the x variables are depenedent on one another. For example, there cannot be a run without a hit (normally speaking; being walked is a possibility as well). Removing these variables did cause our AIC to increase, however this was expected as teh backward selection routine was aiming to minimize AIC.
 
 To alleviate the multicolineatity issue, the following variables were removed:
 
@@ -116,36 +115,37 @@ To alleviate the multicolineatity issue, the following variables were removed:
 * Runs (b_R)
 * Runs Batted in (b_RBI)
 
-
-
-
 ## Revised Backward Selected Model
 
-ToDo: clean up numbers (round them)
-
 ```{r include = FALSE}
-print_back_selected_model <- paste(model_backwards_semifinal$coefficients, names(model_backwards_semifinal$coefficients), sep = " * ")
-print_back_selected_model[1] <- model_backwards_semifinal$coefficients[1]
+print_back_selected_model <- paste(round(model_backwards_semifinal$coefficients, digits = 2), names(model_backwards_semifinal$coefficients), sep = " * ")
+print_back_selected_model[1] <- round(model_backwards_semifinal$coefficients[1],digits = 2)
 print_back_selected_model <- paste(print_back_selected_model, collapse = " + ")
 print_back_selected_model <- paste("log(odds(win_silver_slug)) = ", print_back_selected_model, sep = "")
 ```
 >`r print_back_selected_model`
 
-TODO: talk about how this is better but not 100% complete - too many non-sigs
+After removing the x variables that had multicolinearity issues, we then went through and removed non significant variables using a .05 p-value threshold. The variables with the highest p-values were removed one at a time until all variables were significant. Our AIC lowered slightly as well.
 
 ## Final Model
 
-ToDo: clean up numbers (round them)
-ToDo: explain what we did - removed non sigs one by one until all were sig
 
 ```{r include = FALSE}
-print_back_selected_model <- paste(model_backwards_final$coefficients, names(model_backwards_final$coefficients), sep = " * ")
-print_back_selected_model[1] <- model_backwards_final$coefficients[1]
+print_back_selected_model <- paste(round(model_backwards_final$coefficients, digits = 2), names(model_backwards_final$coefficients), sep = " * ")
+print_back_selected_model[1] <- round(model_backwards_final$coefficients[1],digits = 2)
 print_back_selected_model <- paste(print_back_selected_model, collapse = " + ")
 print_back_selected_model <- paste("log(odds(win_silver_slug)) = ", print_back_selected_model, sep = "")
 ```
 >`r print_back_selected_model`
 
+
+We now have a final model with only significant variables and have removed variables with multicolinearity:
+
+```{r}
+#vif(model_backwards_final_lm)
+```
+
+*TODO:* remove comment above
 
 ## Check Fit
 
@@ -164,7 +164,6 @@ influencePlot(model_backwards_final, labels= paste(batting_data$playerID, battin
 ```
 
 ToDO: add info about influential points and what looked into (bonds, steroid use)
-Todo: Remember to include picture of plot!!
 
 ## Strongest Model Predictors
 
@@ -177,6 +176,20 @@ TODO: Explain here which were the strongest predictors
 
 
 ## Computing Predictions
+
+Prediction 1:
+```{r}
+testPredict1 = data.frame(b_H= c(150), b_HR= c(30), b_BB= c(50), b_SO= c(30), b_home_runs_per_H= c(.15), b_balls_per_AB= c(.10) )
+predict(model_backwards_final,newdata=testPredict1,type="response", se.fit=T)
+
+```
+
+Prediction 2:
+```{r}
+testPredict2 = data.frame(b_H= c(250), b_HR= c(60), b_BB= c(40), b_SO= c(10), b_home_runs_per_H= c(.4), b_balls_per_AB= c(.5) )
+predict(model_backwards_final,newdata=testPredict2,type="response", se.fit=T)
+
+```
 
 ToDo: Compute two predictions here and explain
 

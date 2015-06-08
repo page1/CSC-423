@@ -90,7 +90,7 @@ model_silver_slug <- function(data){
   batting_cols <- which(grepl("b_", colnames(data)))
   batting_data <- data %>%
     group_by(playerID, yearID) %>%
-    mutate(row_num = row_number()) %>%
+    mutate(row_num = row_number(-win_silver_slug)) %>%
     filter(row_num == 1) %>%
     ungroup() %>%
     select(salary, batting_cols, win_silver_slug, playerID, yearID) %>%

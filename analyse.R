@@ -92,14 +92,17 @@ model_silver_slug <- function(data){
     mutate(row_num = row_number()) %>%
     filter(row_num == 1) %>%
     ungroup() %>%
-    select(salary, batting_cols, win_silver_slug) %>%
+    select(salary, batting_cols, win_silver_slug, playerID, yearID) %>%
     filter(complete.cases(.))
 
-  model <- glm(win_silver_slug ~ ., data = batting_data, family = binomial())
-  model_backwards_selection <- step(model, direction = "backward", trace = F)
+  model <- glm(win_silver_slug ~ .-playerID -yearID, data = batting_data, family = binomial())
+  #model_backwards_selection <- step(model, direction = "backward", trace = F)
+  model_backwards_linear <- lm(win_silver_slug ~ b_G + b_G_batting + b_R + b_H + b_HR + b_RBI + b_CS + b_BB + b_SO + b_HBP + b_home_runs_per_H + b_balls_per_AB + b_HBP_per_AB + b_games_batted_per_all_games, data = batting_data)
+  model_backwards_semifinal <- glm(win_silver_slug ~b_H + b_HR + b_CS + b_BB + b_SO + b_HBP + b_home_runs_per_H + b_balls_per_AB + b_HBP_per_AB + b_games_batted_per_all_games, data = batting_data,  family = binomial())
+  model_backwards_final <- glm(win_silver_slug ~b_H + b_HR + b_BB + b_SO + b_home_runs_per_H + b_balls_per_AB, data = batting_data,  family = binomial())
   
   cut_offs <- seq(0, 1, by = 0.01)
-  results_at_cut_off <- find_cut_off_logistic(model_backwards_selection, cut_offs, batting_data, which(colnames(batting_data) == "win_silver_slug")[1])
+  results_at_cut_off <- find_cut_off_logistic(model_backwards_semifinal, cut_offs, batting_data, which(colnames(batting_data) == "win_silver_slug")[1])
   
   best_cut_off <- results_at_cut_off %>%
     filter(f_measure == max(f_measure, na.rm = T)) %>%
@@ -118,6 +121,9 @@ model_silver_slug <- function(data){
   
   save(batting_data,
        model_backwards_selection,
+       model_backwards_linear,
+       model_backwards_final,
+       model_backwards_semifinal,
        best_cut_off,
        plot_of_cut_offs,
        file = "silver_slug_model.Rdata")

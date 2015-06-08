@@ -1,6 +1,6 @@
 ---
-title: "Baseball Data Analysis"
-output: pdf_document
+title: "Baseball Data Analysis - Technical Summary"
+output: html_document
 ---
 
 ```{r include = FALSE}
@@ -29,12 +29,12 @@ ggplot(by_year, aes(x = as.factor(yearID), y = players)) +
 
 Batting data was recorded including:
 
-* b_G - 
-* b_G_batting
+* b_G - Games
+* b_G_batting - Games as Batter
 * b_AB - At Bats
 * b_R - Runs
 * b_H - Hits
-* b_2B - Doubls
+* b_2B - Doubles
 * b_3B - Tripples
 * b_HR - Home Runs
 * b_RBI - Runs Batted In
@@ -46,8 +46,8 @@ Batting data was recorded including:
 * b_HBP - Hit By Pitch
 * b_SH - Sacrifice Hits (Bunts)
 * b_SF - Sacrifice Flies
-* b_GIDP
-* b_G_old
+* b_GIDP - Grounded into Double Plays
+* b_G_old - Old version of games (deprciated) 
 
 In addition to the baseball statistics provided, several additional ratios were computed to normalise the data:
 
@@ -58,6 +58,7 @@ In addition to the baseball statistics provided, several additional ratios were 
 * b_balls_per_AB - Balls per At Bat
 * b_RBI_per_H - Runs Batted In per Hit
 * b_HBP_per_AB - Hit By Pitch per At Bat
+* b_games_batted_per_all_games - Games Batted per All Games Played
 
 Finaly, award data was considered:
 
@@ -69,12 +70,12 @@ ggplot(filter(award_winners, !is.na(awardID)), aes(x = as.factor(awardID), y = p
   theme(axis.text.x = element_text(angle = -60, hjust = -0))
 ```
 
-As we can see, the silver slugger award has the most winners contained in the data set. As a result of this, it was chosen as the dependent variable.
+As the graphs suggests, the Silver Slugger Award has the most winners contained in the data set. As a result of having the most data, it was chosen as the dependent variable.  
 
 The dataset also contained team, league, & fielding data that was not considered.
 
-# Model selection
-To model the likelyhood that a player would recived the Silver Slugger Award a Logistic Regression was performed. Since the Silver Slugger is a batting award recognising players of high offensive value, the batting data set was used. According to wikipedia, the baseball coaches vote for players on other teams to win based on several batting ratios that we were able to derive from our raw count data.
+# Model selection and Definitions
+To model the likelyhood that a player would recived the Silver Slugger (SS) Award a Logistic Regression was performed. Acording to Wikipedia, The SS award is awarded annually to the best offensive player (batting) for each position in both legues of the MLB. A single player can win the SS multiple times over a series of years. Since the SS is a batting award recognising players of high offensive value, the batting data set was used. Voters vote for players based on several batting ratios that we were able to derive from our raw count data.
 
 ## Full Model:
 ```{r include = FALSE}
@@ -84,7 +85,12 @@ print_original_model <- colnames(select(model_backwards_selection$data, -win_sil
 ```
 >`r print_original_model`
 
+
+We tested both backward selection and stepwise selection routines. They both concluded with the same model - we simply just took the backward selection model. We were satisfied with the result and did not pursue additional selection procedures.
+
 ## Backward Selected Model
+
+ToDo: clean up numbers (round them)
 
 ```{r include = FALSE}
 print_back_selected_model <- paste(model_backwards_selection$coefficients, names(model_backwards_selection$coefficients), sep = " * ")
@@ -94,22 +100,89 @@ print_back_selected_model <- paste("log(odds(win_silver_slug)) = ", print_back_s
 ```
 >`r print_back_selected_model`
 
+
+## MultiColinearity
+
+```{r}
+vif(model_backwards_linear)
+```
+
+Since we are dealing with a logistic  model, we had to create a linear "side model" for multicolinearity testing purposes based on the backward selected model. Unfortunately the VIF analysis shows that we have a plethora of multiconinearity issues. This does however make sense as much of the x-variables are depenedent on one another. For example, there cannot be a run without a hit (normally speaking; being walked is a possibility as well).
+
+To alleviate the multicolineatity issue, the following variables were removed:
+
+* Games Played (b_G)
+* Games Played Where Batted (b_G_batting)
+* Runs (b_R)
+* Runs Batted in (b_RBI)
+
+
+
+
+## Revised Backward Selected Model
+
+ToDo: clean up numbers (round them)
+
+```{r include = FALSE}
+print_back_selected_model <- paste(model_backwards_semifinal$coefficients, names(model_backwards_semifinal$coefficients), sep = " * ")
+print_back_selected_model[1] <- model_backwards_semifinal$coefficients[1]
+print_back_selected_model <- paste(print_back_selected_model, collapse = " + ")
+print_back_selected_model <- paste("log(odds(win_silver_slug)) = ", print_back_selected_model, sep = "")
+```
+>`r print_back_selected_model`
+
+TODO: talk about how this is better but not 100% complete - too many non-sigs
+
+## Final Model
+
+ToDo: clean up numbers (round them)
+ToDo: explain what we did - removed non sigs one by one until all were sig
+
+```{r include = FALSE}
+print_back_selected_model <- paste(model_backwards_final$coefficients, names(model_backwards_final$coefficients), sep = " * ")
+print_back_selected_model[1] <- model_backwards_final$coefficients[1]
+print_back_selected_model <- paste(print_back_selected_model, collapse = " + ")
+print_back_selected_model <- paste("log(odds(win_silver_slug)) = ", print_back_selected_model, sep = "")
+```
+>`r print_back_selected_model`
+
+
 ## Check Fit
 
 ```{r}
-batting_data[which(colnames(batting_data) %in% c("win_silver_slug", names(model_backwards_selection$coefficients)))] %>%
+batting_data[which(colnames(batting_data) %in% c("win_silver_slug", names(model_backwards_final$coefficients)))] %>%
 plot_all_box(which(colnames(.) == "win_silver_slug"), .)
 ```
 
-```{r}
-vif(model_backwards_selection)
-```
+TODO: Clean up graphs, explain graphs
+
+
+## Leverage Points
 
 ```{r}
-lm.beta(model_backwards_selection)
+influencePlot(model_backwards_final, labels= paste(batting_data$playerID, batting_data$yearID))
 ```
+
+ToDO: add info about influential points and what looked into (bonds, steroid use)
+Todo: Remember to include picture of plot!!
+
+## Strongest Model Predictors
+
+```{r}
+lm.beta(model_backwards_final)
+```
+
+
+TODO: Explain here which were the strongest predictors
+
+
+## Computing Predictions
+
+ToDo: Compute two predictions here and explain
 
 ## Finding a Optimal Cut Off
+
+ToDo: Make this section look nice
 
 ```{r message=FALSE, warning=FALSE}
 plot_of_cut_offs

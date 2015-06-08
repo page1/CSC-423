@@ -50,7 +50,8 @@ add_batting_ratios <- function(data){
                    b_home_runs_per_H = b_HR / b_H,
                    b_balls_per_AB = b_BB / b_AB,
                    b_RBI_per_H = b_RBI / b_H,
-                   b_HBP_per_AB = b_HBP / b_AB)
+                   b_HBP_per_AB = b_HBP / b_AB,
+                   b_games_batted_per_all_games = b_G / b_G_batting)
 }
 
 add_award_cols <- function(data){

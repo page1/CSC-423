@@ -13,5 +13,8 @@ vignettes/*.html
 vignettes/*.pdf
 .Rproj.user
 
-.Rdata
-.pdf
+*.Rdata
+*.pdf
+*.html
+*.docx
+*.png

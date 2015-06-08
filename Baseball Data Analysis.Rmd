@@ -1,6 +1,6 @@
 ---
 title: "Baseball Data Analysis - Technical Summary"
-output: html_document
+output: pdf_document
 ---
 
 ```{r include = FALSE}
@@ -8,6 +8,7 @@ library(ggplot2)
 library(dplyr)
 library(lm.beta)
 library(car)
+library(knitr)
 source("analyse.R")
 load("data_summary.Rdata")
 load("silver_slug_model.Rdata")
@@ -21,6 +22,7 @@ The data set contains baseball player data from `r min(by_year$yearID)` to `r ma
 ggplot(by_year, aes(x = as.factor(yearID), y = players)) +
   geom_bar(stat = "identity", fill = "Blue") +
   xlab("Year") +
+  ylab("Players") +
   ggtitle("Players per Year") +
   theme(axis.text.x = element_text(angle = -60, hjust = -0))
 ```
@@ -35,7 +37,7 @@ Batting data was recorded including:
 * b_R - Runs
 * b_H - Hits
 * b_2B - Doubles
-* b_3B - Tripples
+* b_3B - Triples
 * b_HR - Home Runs
 * b_RBI - Runs Batted In
 * b_SB - Stolen Bases
@@ -47,9 +49,9 @@ Batting data was recorded including:
 * b_SH - Sacrifice Hits (Bunts)
 * b_SF - Sacrifice Flies
 * b_GIDP - Grounded into Double Plays
-* b_G_old - Old version of games (deprciated) 
+* b_G_old - Old version of games (depreciated) 
 
-In addition to the baseball statistics provided, several additional ratios were computed to normalise the data:
+In addition to the baseball statistics provided, several additional ratios were computed to normalize the data:
 
 * b_hits_per_AB - Hits per At Bat
 * b_runs_per_AB - Runs per At Bat
@@ -60,22 +62,23 @@ In addition to the baseball statistics provided, several additional ratios were 
 * b_HBP_per_AB - Hit By Pitch per At Bat
 * b_games_batted_per_all_games - Games Batted per All Games Played
 
-Finaly, award data was considered:
+Finally, award data was considered:
 
 ```{r echo=FALSE}
 ggplot(filter(award_winners, !is.na(awardID)), aes(x = as.factor(awardID), y = players)) +
   geom_bar(stat = "identity", fill = "Blue") +
   xlab("Award") +
+  ylab("Players")
   ggtitle("Unique Players") +
   theme(axis.text.x = element_text(angle = -60, hjust = -0))
 ```
 
 As the graphs suggests, the Silver Slugger Award has the most winners contained in the data set. As a result of having the most data, it was chosen as the dependent variable.  
 
-The dataset also contained team, league, & fielding data that was not considered.
+The data-set also contained team, league, & fielding data that was not considered.
 
 # Model selection and Definitions
-To model the likelyhood that a player would recived the Silver Slugger (SS) Award a Logistic Regression was performed. Acording to Wikipedia, The SS award is awarded annually to the best offensive player (batting) for each position in both legues of the MLB. A single player can win the SS multiple times over a series of years. Since the SS is a batting award recognising players of high offensive value, the batting data set was used. Voters vote for players based on several batting ratios that we were able to derive from our raw count data.
+To model the likelihood that a player would received the Silver Slugger (SS) Award a Logistic Regression was performed. According to Wikipedia, The SS award is awarded annually to the best offensive player (batting) for each position in both leagues of the MLB. A single player can win the SS multiple times over a series of years. Since the SS is a batting award recognizing players of high offensive value, the batting data set was used. Voters vote for players based on several batting ratios that we were able to derive from our raw count data.
 
 ## Full Model:
 ```{r include = FALSE}
@@ -86,27 +89,29 @@ print_original_model <- colnames(select(model_backwards_selection$data, -win_sil
 >`r print_original_model`
 
 
-We tested both backward selection and stepwise selection routines. They both concluded with the same model - we simply used the backward selection model. We did not pursue additional selection procedures.
+We tested both backward selection and step-wise selection routines. They both concluded with the same model - we simply used the backward selection model. We did not pursue additional selection procedures.
 
 ## Backward Selected Model
 
 ```{r include = FALSE}
 print_back_selected_model <- paste(round(model_backwards_selection$coefficients, digits = 2), names(model_backwards_selection$coefficients), sep = " * ")
-print_back_selected_model[1] <- round(model_backwards_selection$coefficients[1],digits = 2)
+print_back_selected_model[1] <- round(model_backwards_selection$coefficients[1], digits = 2)
 print_back_selected_model <- paste(print_back_selected_model, collapse = " + ")
 print_back_selected_model <- paste("log(odds(win_silver_slug)) = ", print_back_selected_model, sep = "")
 ```
-```
+
 >`r print_back_selected_model`
 
 
 ## MultiColinearity
 
-```{r echo=FALSE}
-vif(model_backwards_linear)
+```{r echo=F,results='asis',error=F,warning=F}
+kable(vif(model_backwards_linear) %>% 
+        {data.frame(Parameters = names(.), VIF = ., row.names = NULL)}, 
+      format = "markdown")
 ```
 
-Since we are dealing with a logistic  model, we had to create a linear "side model" for multicolinearity testing purposes based on the backward selected model. Unfortunately the VIF analysis shows that we have a plethora of multiconinearity issues. This does however make sense as much of the x variables are depenedent on one another. For example, there cannot be a run without a hit (normally speaking; being walked is a possibility as well). Removing these variables did cause our AIC to increase, however this was expected as teh backward selection routine was aiming to minimize AIC.
+Since we are dealing with a logistic  model, we had to create a linear "side model" for multicolinearity testing purposes based on the backward selected model. Unfortunately the VIF analysis shows that we have a plethora of multiconinearity issues. This does however make sense as much of the x variables are dependent on one another. For example, there cannot be a run without a hit (normally speaking; being walked is a possibility as well). Removing these variables did cause our AIC to increase, however this was expected as the backward selection routine was aiming to minimize AIC.
 
 To alleviate the multicolineatity issue, the following variables were removed:
 
@@ -138,15 +143,14 @@ print_back_selected_model <- paste("log(odds(win_silver_slug)) = ", print_back_s
 ```
 >`r print_back_selected_model`
 
-```{r echo=FALSE}
-vif(model_backwards_final_lm)
+```{r echo=F,results='asis',error=F,warning=F}
+kable(vif(model_backwards_final_lm) %>% 
+        {data.frame(Parameters = names(.), VIF = ., row.names = NULL)}, 
+      format = "markdown")
 ```
 
 We now have a final model with only significant variables and have removed variables with multicolinearity:
 
-```{r}
-#vif(model_backwards_final_lm)
-```
 
 *TODO:* remove comment above
 
@@ -170,8 +174,10 @@ ToDO: add info about influential points and what looked into (bonds, steroid use
 
 ## Strongest Model Predictors
 
-```{r echo=FALSE}
-lm.beta(model_backwards_final)
+```{r echo=F,results='asis',error=F,warning=F}
+kable(lm.beta(model_backwards_final)$standardized.coefficients %>% 
+        {data.frame(Parameters = names(.), "Standardized_Coefficients" = ., row.names = NULL)}, 
+      format = "markdown")
 ```
 
 
@@ -180,38 +186,58 @@ TODO: Explain here which were the strongest predictors
 
 ## Computing Predictions
 
-Prediction 1:
+### Prediction 1:
 ```{r}
-testPredict1 = data.frame(b_H= c(150), b_HR= c(30), b_BB= c(50), b_SO= c(30), b_home_runs_per_H= c(.15), b_balls_per_AB= c(.10) )
-predict(model_backwards_final,newdata=testPredict1,type="response", se.fit=T)
-
+testPredict1 <- data.frame(b_H = c(150), 
+                           b_HR = c(30), 
+                           b_BB = c(50), 
+                           b_SO = c(30), 
+                           b_home_runs_per_H = c(.15), 
+                           b_balls_per_AB = c(.10))
+predict(model_backwards_final, newdata = testPredict1, type = "response", se.fit = T)
 ```
 
-Prediction 2:
+### Prediction 2:
 ```{r}
-testPredict2 = data.frame(b_H= c(250), b_HR= c(60), b_BB= c(40), b_SO= c(10), b_home_runs_per_H= c(.4), b_balls_per_AB= c(.5) )
-predict(model_backwards_final,newdata=testPredict2,type="response", se.fit=T)
-
+testPredict2 <- data.frame(b_H = c(250), 
+                           b_HR = c(60), 
+                           b_BB = c(40), 
+                           b_SO = c(10), 
+                           b_home_runs_per_H = c(.4), 
+                           b_balls_per_AB = c(.5))
+predict(model_backwards_final, newdata = testPredict2, type = "response", se.fit = T)
 ```
 
 ToDo: Compute two predictions here and explain
 
 ## Finding a Optimal Cut Off
 
-ToDo: Make this section look nice
+Since few players win the Silver Slugger award each year, a naive prediction cut off of 0.5 would not provide good results. To find a more optimal cut off, cut off values were trialed, and the one that produced the maximum F Measure was chosen. The Optimal F Measure is marked with a vertical line on the following plot.
 
 ```{r message=FALSE, warning=FALSE, echo=FALSE}
 plot_of_cut_offs
 ```
 
-After searching for a good cut off value, `r best_cut_off["cut_offs"]` was chosen.
+After searching for a good cut off value, `r best_cut_off["cut_offs"]` was chosen yielding the following results.
 
-```{r echo=FALSE}
-best_cut_off
+```{r echo=F,results='asis',error=F,warning=F}
+kable(best_cut_off[,1:4], 
+      format = "markdown")
+```
+
+```{r echo=F,results='asis',error=F,warning=F}
+kable(best_cut_off[,5:ncol(best_cut_off)], 
+      format = "markdown")
 ```
 
 ## Cross Validation
-After running 5 fold cross validation, 5 times for a total of 25 trials, the following metrics were computed:
+To validate the predictive strength of the model the following precedure was repeated acrost 5 folds, 5 times for a total of 25 trials:
+
+1. Fit Model To Training Data
+2. Determine Cut Offs Using Training Data
+3. Test Model Prediction using Test Data
+
+The following metrics were computed:
 
 ```{r echo=FALSE}
 boxplot(cross_validated_results[,c("accuracy", "specificity")],
@@ -229,4 +255,4 @@ boxplot(cross_validated_results[,c("recall", "precision", "f_measure")],
         xlab = "Metric")
 ```
 
-We can see that the model has a mean recall of `r round(mean(cross_validated_results$recall), digits = 2)` meaning `r round(mean(cross_validated_results$recall), digits = 2) * 100`% of the players each year that won an award were correctly labled. Since the mean precision is `r round(mean(cross_validated_results$precision), digits = 2)`, `r round(mean(cross_validated_results$precision), digits = 2) * 100`% of the players the model predicts to win, actually do so.
+We can see that the model has a mean recall of `r round(mean(cross_validated_results$recall), digits = 2)` meaning `r round(mean(cross_validated_results$recall), digits = 2) * 100`% of the players each year that won an award were correctly labeled. Since the mean precision is `r round(mean(cross_validated_results$precision), digits = 2)`, `r round(mean(cross_validated_results$precision), digits = 2) * 100`% of the players the model predicts to win, actually do so.

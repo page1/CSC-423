@@ -138,8 +138,7 @@ model_silver_slug <- function(data){
            precision = true_positive / (true_positive + false_positive),
            specificity = true_negative / (true_negative + false_positive),
            f_measure = (2 * precision * recall) / (recall + precision),
-           prior = (true_positive + false_negative) / (true_positive + true_negative + false_positive + false_negative),
-           lift = precision / prior)
+           prior = (true_positive + false_negative) / (true_positive + true_negative + false_positive + false_negative))
   
   cut_offs <- seq(0, 1, by = 0.01)
   results_at_cut_off <- find_cut_off_logistic(model_backwards_semifinal, cut_offs, batting_data, which(colnames(batting_data) == "win_silver_slug")[1])

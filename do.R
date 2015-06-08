@@ -13,11 +13,11 @@ main <- function(){
   data <- join_data(batting, fielding, salaries, teams, awards) %>%
             fix_factors() %>%        
             add_award_cols() %>%
-            add_batting_ratios()
+            add_batting_ratios() %>%
+            filter(yearID >= 1985)
             
   
   data_summary(data)
   
   model_silver_slug(data)
-
 }

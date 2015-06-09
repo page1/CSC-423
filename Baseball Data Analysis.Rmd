@@ -156,15 +156,6 @@ plot_all_box(which(colnames(.) == "win_silver_slug"), .)
 
 TODO: Clean up graphs, explain graphs
 
-
-## Leverage Points
-
-```{r echo=FALSE}
-influencePlot(model_backwards_final, labels= paste(batting_data$playerID, batting_data$yearID))
-```
-
-ToDO: add info about influential points and what looked into (bonds, steroid use)
-
 ## Strongest Model Predictors
 
 ```{r echo=F,results='asis',error=F,warning=F}
@@ -175,6 +166,14 @@ kable(lm.beta(model_backwards_final)$standardized.coefficients %>%
 
 
 TODO: Explain here which were the strongest predictors
+
+## Leverage Points
+
+```{r echo=FALSE}
+influencePlot(model_backwards_final, labels= paste(batting_data$playerID, batting_data$yearID))
+```
+
+ToDO: add info about influential points and what looked into (bonds, steroid use)
 
 
 ## Computing Predictions

@@ -102,7 +102,7 @@ kable(vif(model_backwards_linear) %>%
       format = "markdown")
 ```
 
-Since we are dealing with a logistic  model, we had to create a linear "side model" for multicolinearity testing purposes based on the backward selected model. Unfortunately the VIF analysis shows that we have a plethora of multiconinearity issues. This does however make sense as much of the x variables are dependent on one another. For example, there cannot be a run without a hit (normally speaking; being walked is a possibility as well). Removing these variables did cause our AIC to increase, however this was expected as the backward selection routine was aiming to minimize AIC.
+Since we are dealing with a logistic  model, we had to create a linear "side model" for multicolinearity testing purposes based on the backward selected model. Unfortunately the VIF analysis shows that we have a plethora of multicolinearity issues. This does however make sense as much of the x variables are dependent on one another. For example, there cannot be a run without a hit (normally speaking; being walked is a possibility as well). Removing these variables did cause our AIC to increase, however this was expected as the backward selection routine was aiming to minimize AIC.
 
 To alleviate the multicolineatity issue, the following variables were removed:
 
@@ -123,7 +123,9 @@ b_HBP
 summary(model_backwards_semifinal)
 ```
 
-After removing the x variables that had multicolinearity issues, we then went through and removed non significant variables using a .05 p-value threshold. The variables with the highest p-values were removed one at a time until all variables were significant. Our AIC lowered slightly as well.
+After removing the x variables that had multicolinearity issues, we then went through and removed non significant variables using a .05 p-value threshold. The variables with the highest p-values were removed one at a time until all variables were significant. Our AIC lowered as well.
+
+We now have a final model with only significant variables and have removed variables with multicolinearity:
 
 ## Final Model
 
@@ -145,7 +147,7 @@ kable(vif(model_backwards_final_lm) %>%
       format = "markdown")
 ```
 
-We now have a final model with only significant variables and have removed variables with multicolinearity:
+
 
 ## Check Fit
 The following box plots will be used to inspect the distribution of the independent values vs whether the player won the Silver Slugger or not.
@@ -181,31 +183,48 @@ influencePlot(model_backwards_final,
 
 We can see that Barry Bonds in 2007 (bondsba01 2007) represented a massive outlier in our data set. His outstanding hitting record is represented by large Hat values on the X axis. The rather large circle that represents his Cook Distance, shows that the model poorly predicted the fact that he did not win the award in addition to his strange hitting record. It's important to note that the Silver Slugger Award is not based purely on a player's stats. The winners are chosen based on votes from coaches in the league; in other words the votes can be influenced by things such as the media and image of the MLB. The reason the model erroneously predicted Barry Bonds winning the award in 2007 is likely due to a steroid abuse scandal that grew in media attention in the years prior to 2007. Since our model is purely based on stats, the subjectivity of the votes is not considered in our analysis.
 
-Also shown as an outlier is Tim Leary in 1988. Tim won the Silver Slugger Award however his batting stats when processed through our model suggest that he should have not won. After further investigation, we determined that Tim was a pitcher in the National league. Recall that the SS Award is awarded to a single player from each field position. Often in baseball, pitchers focus all of their time and talent developing their throwing arm to yield better pitches; batting is not as big of a focus. In the American League, there are Designated Hitters - individuals who step in and bat instead of the pitcher. In the National league, however, designated hitters are not allowed. This means that the National League has a pool of players that have won the SS award who however do not have the greatest batting stats since they are pitchers.
+Also shown as an outlier is Tim Leary in 1988 (learyti01 1998). Tim won the Silver Slugger Award however his batting stats when processed through our model suggest that he should have not won. After further investigation, we determined that Tim was a pitcher in the National league. Recall that the SS Award is awarded to a single player from each field position. Often in baseball, pitchers focus all of their time and talent developing their throwing arm to yield better pitches; batting is not as big of a focus. In the American League, there are Designated Hitters - individuals who step in and bat instead of the pitcher. In the National league, however, designated hitters are not allowed. This means that the National League has a pool of players that have won the SS award who however do not have the greatest batting stats since they are pitchers.
 
 ## Computing Predictions
 
 ### Prediction 1:
-```{r}
+```{r echo=F}
 testPredict1 <- data.frame(b_H = c(150),
                            b_HR = c(30), 
                            b_SB = c(10), 
                            b_SO = c(30), 
                            b_IBB = c(10))
-predict(model_backwards_final, newdata = testPredict1, type = "response", se.fit = T)
+predict1 <- predict(model_backwards_final, newdata = testPredict1, type = "response", se.fit = T)
 ```
 
+When using x variables values of:
+
+```{r echo=F,results='asis',error=F,warning=F}
+kable(testPredict1, 
+      format = "markdown")
+```
+
+Our model predicts that the probability of winning the Silver Slugger Award is **`r paste(round(predict1$fit*100, digits = 1), sep='', '%')`** with a standard error of **`r paste(round(predict1$se.fit*100, digits = 1), sep='', '%')`**. Therefore our 95% prediction intervals are from **`r paste(round((predict1$fit-1.96*predict1$se.fit)*100, digits = 1), sep='', '%')`** to **`r paste(round((predict1$fit+1.96*predict1$se.fit)*100, digits = 1), sep='', '%')`**.
+
+
 ### Prediction 2:
-```{r}
-testPredict2 <- data.frame(b_H = c(250),
-                           b_HR = c(60), 
+```{r echo=F}
+testPredict2 <- data.frame(b_H = c(50),
+                           b_HR = c(30), 
                            b_SB = c(1), 
                            b_SO = c(10), 
                            b_IBB = c(5))
-predict(model_backwards_final, newdata = testPredict2, type = "response", se.fit = T)
+predict2 <- predict(model_backwards_final, newdata = testPredict2, type = "response", se.fit = T)
 ```
 
-ToDo: Compute two predictions here and explain
+When using x variables values of:
+
+```{r echo=F,results='asis',error=F,warning=F}
+kable(testPredict2, 
+      format = "markdown")
+```
+
+Our model predicts that the probability of winning the Silver Slugger Award is **`r paste(round(predict2$fit*100, digits = 1), sep='', '%')`** with a standard error of **`r paste(round(predict2$se.fit*100, digits = 1), sep='', '%')`**. Therefore our 95% prediction intervals are from **`r paste(round((predict2$fit-1.96*predict2$se.fit)*100, digits = 1), sep='', '%')`** to **`r paste(round((predict2$fit+1.96*predict2$se.fit)*100, digits = 1), sep='', '%')`**.
 
 ## Finding an Optimal Cut Off
 

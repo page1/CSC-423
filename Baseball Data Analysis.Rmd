@@ -1,6 +1,6 @@
 ---
 title: "Baseball Data Analysis - Technical Summary"
-output: html_document
+output: pdf_document
 ---
 
 ```{r include = FALSE}
@@ -94,7 +94,7 @@ We tested both backward selection and step-wise selection routines. They both co
 summary(model_backwards_selection)
 ```
 
-## multicollinearity
+## Multicollinearity
 
 ```{r echo=F,results='asis',error=F,warning=F}
 kable(vif(model_backwards_linear) %>% 
@@ -102,7 +102,7 @@ kable(vif(model_backwards_linear) %>%
       format = "markdown")
 ```
 
-Since we are dealing with a logistic  model, we had to create a linear "side model" for multicollinearity testing purposes based on the backward selected model. Unfortunately the VIF analysis shows that we have a plethora of multicollinearity issues. This does however make sense as much of the x variables are dependent on one another. For example, there cannot be a run without a hit (normally speaking; being walked is a possibility as well). Removing these variables did cause our AIC to increase, however this was expected as the backward selection routine was aiming to minimize AIC.
+Since we are dealing with a logistic  model, we had to create a linear "side model" for multicollinearity testing purposes based on the backward selected model. Unfortunately the VIF analysis shows that we have a plethora of multicollinearity issues. This does however make sense as much of the x variables are dependent on one another. For example, there cannot be a run without a hit (normally speaking; being walked is a possibility as well). 
 
 To alleviate the multicollinearity issue, the following variables were removed:
 
@@ -132,7 +132,7 @@ print_back_selected_model[1] <- round(model_backwards_final$coefficients[1],digi
 print_back_selected_model <- paste(print_back_selected_model, collapse = " + ")
 print_back_selected_model <- paste("log(odds(win_silver_slug)) = ", print_back_selected_model, sep = "")
 ```
->`r print_back_selected_model`
+The Model is: `r print_back_selected_model`
 
 ```{r echo=F,results='asis',error=F,warning=F}
 kable(vif(model_backwards_final_lm) %>% 
@@ -148,7 +148,7 @@ batting_data[which(colnames(batting_data) %in% c("win_silver_slug", names(model_
 plot_all_box(which(colnames(.) == "win_silver_slug"), .)
 ```
 
-In all of the box plots we can see that the mean value is greater in the group of players that won the award. This seems reasonable except in the case of Strike Outs plot (b_SO). Based on our model, we know that players will fewer strike outs are more likely to win the award. Since the box plot clearly shows that players that win the award often have many strike outs, we can see that strike outs are expected from the best players, however they are penalized when deciding the most likely winner given identical Hits, Home Runs, Intentional Balls & Stolen Bases.
+In all of the box plots we can see that the mean value is greater in the group of players that won the award. This seems reasonable except in the case of Strike Outs plot (b_SO). Based on our model, we know that players with fewer strike outs are more likely to win the award. Since the box plot clearly shows that players that win the award often have many strike outs, we can see that strike outs are expected from the best players, however they are penalized when deciding the most likely winner given identical Hits, Home Runs, Intentional Balls & Stolen Bases.
 
 ## Strongest Model Predictors
 ```{r include=F}
@@ -172,7 +172,7 @@ influencePlot(model_backwards_final,
               sub="Circle size is proportial to Cook's Distance")
 ```
 
-We can see that Barry Bonds in 2007 (bondsba01 2007) represented a massive outlier in our data set. His outstanding hitting record is represented by large Hat values on the X axis. The rather large circle that represents his Cook Distance, shows that the model poorly predicted the fact that he did not win the award in addition to his strange hitting record. It's important to note that the Silver Slugger Award is not based purely on a player's stats. The winners are chosen based on votes from coaches in the league; in other words the votes can be influenced by things such as the media and image of the MLB. The reason the model erroneously predicted Barry Bonds winning the award in 2007 is likely due to a steroid abuse scandal that grew in media attention in the years prior to 2007. Since our model is purely based on stats, the subjectivity of the votes is not considered in our analysis.
+We can see that Barry Bonds in 2007 (bondsba01 2007) represented a massive outlier in our data set. His outstanding hitting record is represented by large Hat values on the X axis. The rather large circle that represents his Cook Distance, shows that the model poorly predicted the fact that he did not win the award in addition to his strange hitting record. It's important to note that the Silver Slugger Award is not based purely on a player's stats. The winners are chosen based on votes from coaches in the league; in other words the votes can be influenced by things such as the media and the image of the MLB. The reason the model erroneously predicted Barry Bonds winning the award in 2007 is likely due to a steroid abuse scandal that grew in media attention in the years prior to 2007. Since our model is purely based on stats, the subjectivity of the votes is not considered in our analysis.
 
 Also shown as an outlier is Tim Leary in 1988 (learyti01 1998). Tim won the Silver Slugger Award however his batting stats when processed through our model suggest that he should have not won. After further investigation, we determined that Tim was a pitcher in the National league. Recall that the SS Award is awarded to a single player from each field position. Often in baseball, pitchers focus all of their time and talent developing their throwing arm to yield better pitches; batting is not as big of a focus. In the American League, there are Designated Hitters - individuals who step in and bat instead of the pitcher. In the National league, however, designated hitters are not allowed. This means that the National League has a pool of players that have won the SS award who however do not have the greatest batting stats since they are pitchers.
 
@@ -253,7 +253,7 @@ boxplot(cross_validated_results[,c("accuracy", "specificity")],
         xlab = "Metric")
 ```
 
-We can see that the Accuracy and Specificity of the cross validated models is fairly stable and high. This is to be expected due since the vast majority of players do not win awards each year.
+We can see that the Accuracy and Specificity of the cross validated models is fairly stable and high. This is to be expected since the vast majority of players do not win awards each year.
 
 ```{r echo=FALSE}
 boxplot(cross_validated_results[,c("recall", "precision", "f_measure")],
@@ -266,6 +266,7 @@ We can see that the model has a mean recall of `r round(mean(cross_validated_res
 
 # Conclusions
 In conclusion, our model proves that there is a statistically significant increase in a player's likelihood of winning the Silver Slugger Awards if they hit more balls, have more home runs, avoid striking out, steal more bases, and are intentionally walked by the pitcher more often. Using 5 Fold Cross validation, and an optimal cut off by F Measure:
+
 * `r round(mean(cross_validated_results$recall), digits = 2) * 100`% of the players each year that won an award were correctly labeled
 * `r round(mean(cross_validated_results$precision), digits = 2) * 100`% of the players the model predicts to win, actually did
 

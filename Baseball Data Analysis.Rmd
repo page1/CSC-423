@@ -172,7 +172,10 @@ The Standardised Beta show that players that wish to increase their odds of winn
 ## Leverage Points
 
 ```{r echo=FALSE}
-influencePlot(model_backwards_final, labels= paste(batting_data$playerID, batting_data$yearID))
+influencePlot(model_backwards_final, 
+              labels= paste(batting_data$playerID, batting_data$yearID), 
+              main="Influence Plot",
+              sub="Circle size is proportial to Cook's Distance")
 ```
 
 We can see that Barry Bonds in 2007 (bondsba01 2007) represented a massive outlier in our data set. His outstanding hitting record is represented by large Hat values on the X axis. The rather large circle that represents his Cook Distance, shows that the model poorly predicted the fact that he did not win the award in addition to his strange hitting record. It's important to note that the Silver Slugger Award is not based purely on a player's stats. The winners are chosen based on votes from coaches in the league; in other words the votes can be influenced by things such as the media and image of the MLB. The reason the model erroneously predicted Barry Bonds winning the award in 2007 is likely due to a steroid abuse scandel that grew in media attention in the years prior to 2007. Since our model is purely based on stats, the subjectivity of the votes is not considered in our analysis.

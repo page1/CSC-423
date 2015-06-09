@@ -78,9 +78,7 @@ find_cut_off_logistic <- function(model, cut_offs, test_data, observed_col){
            accuracy = (true_positive + true_negative) / (true_positive + true_negative + false_positive + false_negative),
            precision = true_positive / (true_positive + false_positive),
            specificity = true_negative / (true_negative + false_positive),
-           f_measure = (2 * precision * recall) / (recall + precision),
-           prior = (true_positive + false_negative) / (true_positive + true_negative + false_positive + false_negative),
-           lift = precision / prior)
+           f_measure = (2 * precision * recall) / (recall + precision))
   
   return(results_at_cut_off)
 }

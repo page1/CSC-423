@@ -265,7 +265,7 @@ boxplot(cross_validated_results[,c("recall", "precision", "f_measure")],
 We can see that the model has a mean recall of `r round(mean(cross_validated_results$recall), digits = 2)` meaning `r round(mean(cross_validated_results$recall), digits = 2) * 100`% of the players each year that won an award were correctly labeled. Since the mean precision is `r round(mean(cross_validated_results$precision), digits = 2)`, `r round(mean(cross_validated_results$precision), digits = 2) * 100`% of the players the model predicts to win, actually do so.
 
 # Conclusions
-In conclusion, our model proves that there is a statistically significant increase in a players likelihood of winning the Silver Slugger Awards if they hit more balls, have more home runs, avoid striking out, steal more bases, and are intentionally walked by the pitcher more often. Using 5 Fold Cross validation, and an optimal cut off by F Measure:
+In conclusion, our model proves that there is a statistically significant increase in a player's likelihood of winning the Silver Slugger Awards if they hit more balls, have more home runs, avoid striking out, steal more bases, and are intentionally walked by the pitcher more often. Using 5 Fold Cross validation, and an optimal cut off by F Measure:
 * `r round(mean(cross_validated_results$recall), digits = 2) * 100`% of the players each year that won an award were correctly labeled
 * `r round(mean(cross_validated_results$precision), digits = 2) * 100`% of the players the model predicts to win, actually did
 

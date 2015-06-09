@@ -181,31 +181,27 @@ influencePlot(model_backwards_final,
 
 We can see that Barry Bonds in 2007 (bondsba01 2007) represented a massive outlier in our data set. His outstanding hitting record is represented by large Hat values on the X axis. The rather large circle that represents his Cook Distance, shows that the model poorly predicted the fact that he did not win the award in addition to his strange hitting record. It's important to note that the Silver Slugger Award is not based purely on a player's stats. The winners are chosen based on votes from coaches in the league; in other words the votes can be influenced by things such as the media and image of the MLB. The reason the model erroneously predicted Barry Bonds winning the award in 2007 is likely due to a steroid abuse scandal that grew in media attention in the years prior to 2007. Since our model is purely based on stats, the subjectivity of the votes is not considered in our analysis.
 
+Also shown as an outlier is Tim Leary in 1988. Tim won the Silver Slugger Award however his batting stats when processed through our model suggest that he should have not won. After further investigation, we determined that Tim was a pitcher in the National league. Recall that the SS Award is awarded to a single player from each field position. Often in baseball, pitchers focus all of their time and talent developing their throwing arm to yield better pitches; batting is not as big of a focus. In the American League, there are Designated Hitters - individuals who step in and bat instead of the pitcher. In the National league, however, designated hitters are not allowed. This means that the National League has a pool of players that have won the SS award who however do not have the greatest batting stats since they are pitchers.
+
 ## Computing Predictions
 
 ### Prediction 1:
 ```{r}
 testPredict1 <- data.frame(b_H = c(150),
                            b_HR = c(30), 
-                           b_SB = c(10),
-                           b_BB = c(50), 
+                           b_SB = c(10), 
                            b_SO = c(30), 
-                           b_IBB = c(10),
-                           b_home_runs_per_H = c(.15), 
-                           b_balls_per_AB = c(.10))
+                           b_IBB = c(10))
 predict(model_backwards_final, newdata = testPredict1, type = "response", se.fit = T)
 ```
 
 ### Prediction 2:
 ```{r}
-testPredict2 <- data.frame(b_H = c(250), 
+testPredict2 <- data.frame(b_H = c(250),
                            b_HR = c(60), 
-                           b_BB = c(40), 
-                           b_SB = c(1),
+                           b_SB = c(1), 
                            b_SO = c(10), 
-                           b_IBB = c(5),
-                           b_home_runs_per_H = c(.4), 
-                           b_balls_per_AB = c(.5))
+                           b_IBB = c(5))
 predict(model_backwards_final, newdata = testPredict2, type = "response", se.fit = T)
 ```
 

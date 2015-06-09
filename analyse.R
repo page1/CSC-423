@@ -111,7 +111,7 @@ model_silver_slug <- function(data){
       print(paste("R=", R, " K=", K, sep = ""))
       train <- batting_data[folds$subsets[folds$which != K, R],]
       test <- batting_data[folds$subsets[folds$which == K, R],]
-      model <- glm(win_silver_slug ~b_H + b_HR + b_BB + b_SO + b_home_runs_per_H + b_balls_per_AB, data = train,  family = binomial())
+      model <- glm(win_silver_slug ~ b_H + b_HR + b_SB + b_SO + b_IBB, data = train,  family = binomial())
       
       cut_offs <- seq(0, 1, by = 0.01)
       results_at_cut_off <- find_cut_off_logistic(model, cut_offs, train, which(colnames(train) == "win_silver_slug")[1])
@@ -141,7 +141,7 @@ model_silver_slug <- function(data){
            prior = (true_positive + false_negative) / (true_positive + true_negative + false_positive + false_negative))
   
   cut_offs <- seq(0, 1, by = 0.01)
-  results_at_cut_off <- find_cut_off_logistic(model_backwards_semifinal, cut_offs, batting_data, which(colnames(batting_data) == "win_silver_slug")[1])
+  results_at_cut_off <- find_cut_off_logistic(model_backwards_final, cut_offs, batting_data, which(colnames(batting_data) == "win_silver_slug")[1])
   
   best_cut_off <- results_at_cut_off %>%
     filter(f_measure == max(f_measure, na.rm = T)) %>%
@@ -153,10 +153,11 @@ model_silver_slug <- function(data){
                         geom_line(aes(y = precision, colour = "Precision")) +
                         geom_line(aes(y = specificity, colour = "Specificity")) +
                         geom_line(aes(y = f_measure, colour = "FMeasure")) +
-                        scale_colour_manual("",values=c("Red","Green","Blue", "Orange", "Black")) +
-                        ylab(" ") +
+                        scale_colour_manual("Cut Off Fit Metrics",values=c("Red","Green","Blue", "Orange", "Black")) +
+                        ylab("Metric Values") +
+                        xlab("Cut Offs") +
                         geom_vline(xintercept = best_cut_off$cut_offs[1]) +
-                        ggtitle("Metrics")
+                        ggtitle("Prediction Fit Metrics by Cut Off")
   
   save(batting_data,
        model,

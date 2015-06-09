@@ -181,10 +181,12 @@ TODO: Explain here which were the strongest predictors
 
 ### Prediction 1:
 ```{r}
-testPredict1 <- data.frame(b_H = c(150), 
+testPredict1 <- data.frame(b_H = c(150),
                            b_HR = c(30), 
+                           b_SB = c(10),
                            b_BB = c(50), 
                            b_SO = c(30), 
+                           b_IBB = c(10),
                            b_home_runs_per_H = c(.15), 
                            b_balls_per_AB = c(.10))
 predict(model_backwards_final, newdata = testPredict1, type = "response", se.fit = T)
@@ -195,7 +197,9 @@ predict(model_backwards_final, newdata = testPredict1, type = "response", se.fit
 testPredict2 <- data.frame(b_H = c(250), 
                            b_HR = c(60), 
                            b_BB = c(40), 
+                           b_SB = c(1),
                            b_SO = c(10), 
+                           b_IBB = c(5),
                            b_home_runs_per_H = c(.4), 
                            b_balls_per_AB = c(.5))
 predict(model_backwards_final, newdata = testPredict2, type = "response", se.fit = T)

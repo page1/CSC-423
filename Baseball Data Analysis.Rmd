@@ -94,7 +94,7 @@ We tested both backward selection and step-wise selection routines. They both co
 summary(model_backwards_selection)
 ```
 
-## MultiColinearity
+## multicollinearity
 
 ```{r echo=F,results='asis',error=F,warning=F}
 kable(vif(model_backwards_linear) %>% 
@@ -102,19 +102,13 @@ kable(vif(model_backwards_linear) %>%
       format = "markdown")
 ```
 
-Since we are dealing with a logistic  model, we had to create a linear "side model" for multicolinearity testing purposes based on the backward selected model. Unfortunately the VIF analysis shows that we have a plethora of multicolinearity issues. This does however make sense as much of the x variables are dependent on one another. For example, there cannot be a run without a hit (normally speaking; being walked is a possibility as well). Removing these variables did cause our AIC to increase, however this was expected as the backward selection routine was aiming to minimize AIC.
+Since we are dealing with a logistic  model, we had to create a linear "side model" for multicollinearity testing purposes based on the backward selected model. Unfortunately the VIF analysis shows that we have a plethora of multicollinearity issues. This does however make sense as much of the x variables are dependent on one another. For example, there cannot be a run without a hit (normally speaking; being walked is a possibility as well). Removing these variables did cause our AIC to increase, however this was expected as the backward selection routine was aiming to minimize AIC.
 
-To alleviate the multicolineatity issue, the following variables were removed:
-
-b_games_batted_per_all_games
-b_G_batting
-b_SF
-b_HBP_per_AB
-b_HBP
+To alleviate the multicollinearity issue, the following variables were removed:
 
 * Games Played (b_G)
 * Games Played Where Batted (b_G_batting)
-* Runs (b_R)
+* At Bats (b_AB)
 * Runs Batted in (b_RBI)
 
 ## Revised Backward Selected Model
@@ -123,11 +117,10 @@ b_HBP
 summary(model_backwards_semifinal)
 ```
 
-After removing the x variables that had multicolinearity issues, we then went through and removed non significant variables using a .05 p-value threshold. The variables with the highest p-values were removed one at a time until all variables were significant. Our AIC lowered as well.
-
-We now have a final model with only significant variables and have removed variables with multicolinearity:
+After removing the x variables that had multicollinearity issues, we then went through and removed non significant variables using a .05 p-value threshold. The variables with the highest p-values were removed one at a time until all variables were significant. Although the AIC increased, our model is now free of multicollinearity and is only fit on significant variables.
 
 ## Final Model
+We now have a final model with only significant variables and have removed variables with multicolinearity:
 
 ```{r echo=F}
 summary(model_backwards_final)
@@ -146,8 +139,6 @@ kable(vif(model_backwards_final_lm) %>%
         {data.frame(Parameters = names(.), VIF = ., row.names = NULL)}, 
       format = "markdown")
 ```
-
-
 
 ## Check Fit
 The following box plots will be used to inspect the distribution of the independent values vs whether the player won the Silver Slugger or not.

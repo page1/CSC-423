@@ -98,10 +98,10 @@ model_silver_slug <- function(data){
 
   model <- glm(win_silver_slug ~ .-playerID -yearID, data = batting_data, family = binomial())
   model_backwards_selection <- step(model, direction = "backward", trace = F)
-  model_backwards_linear <- lm(win_silver_slug ~ b_G + b_G_batting + b_R + b_H + b_HR + b_RBI + b_CS + b_BB + b_SO + b_HBP + b_home_runs_per_H + b_balls_per_AB + b_HBP_per_AB + b_games_batted_per_all_games, data = batting_data)
-  model_backwards_semifinal <- glm(win_silver_slug ~b_H + b_HR + b_CS + b_BB + b_SO + b_HBP + b_home_runs_per_H + b_balls_per_AB + b_HBP_per_AB + b_games_batted_per_all_games, data = batting_data,  family = binomial())
-  model_backwards_final <- glm(win_silver_slug ~b_H + b_HR + b_BB + b_SO + b_home_runs_per_H + b_balls_per_AB, data = batting_data,  family = binomial())
-  model_backwards_final_lm <- lm(win_silver_slug ~b_H + b_HR + b_BB + b_SO + b_home_runs_per_H + b_balls_per_AB, data = batting_data,  family = binomial())
+  model_backwards_linear <- lm(win_silver_slug ~ b_G + b_G_batting + b_AB + b_H + b_HR + b_RBI + b_SB + b_BB + b_SO + b_IBB + b_HBP + b_SH + b_SF + b_home_runs_per_H + b_balls_per_AB + b_HBP_per_AB + b_games_batted_per_all_games, data = batting_data)
+  model_backwards_semifinal <- glm(win_silver_slug ~ b_H + b_HR + b_SB + b_BB + b_SO + b_IBB + b_HBP + b_SH + b_SF + b_home_runs_per_H + b_balls_per_AB + b_HBP_per_AB + b_games_batted_per_all_games, data = batting_data,  family = binomial())
+  model_backwards_final <- glm(win_silver_slug ~ b_H + b_HR + b_SB + b_SO + b_IBB, data = batting_data,  family = binomial())
+  model_backwards_final_lm <- lm(win_silver_slug ~ b_H + b_HR + b_SB + b_SO + b_IBB, data = batting_data)
   
   k <- 5
   r <- 5
@@ -159,6 +159,7 @@ model_silver_slug <- function(data){
                         ggtitle("Metrics")
   
   save(batting_data,
+       model,
        model_backwards_selection,
        model_backwards_linear,
        model_backwards_final,

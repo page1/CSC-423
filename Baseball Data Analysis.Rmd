@@ -1,6 +1,6 @@
 ---
 title: "Baseball Data Analysis - Technical Summary"
-output: pdf_document
+output: html_document
 ---
 
 ```{r include = FALSE}
@@ -68,7 +68,7 @@ Finally, award data was considered:
 ggplot(filter(award_winners, !is.na(awardID)), aes(x = as.factor(awardID), y = players)) +
   geom_bar(stat = "identity", fill = "Blue") +
   xlab("Award") +
-  ylab("Players")
+  ylab("Players") +
   ggtitle("Unique Players") +
   theme(axis.text.x = element_text(angle = -60, hjust = -0))
 ```
@@ -81,27 +81,18 @@ The data-set also contained team, league, & fielding data that was not considere
 To model the likelihood that a player would received the Silver Slugger (SS) Award a Logistic Regression was performed. According to Wikipedia, The SS award is awarded annually to the best offensive player (batting) for each position in both leagues of the MLB. A single player can win the SS multiple times over a series of years. Since the SS is a batting award recognizing players of high offensive value, the batting data set was used. Voters vote for players based on several batting ratios that we were able to derive from our raw count data.
 
 ## Full Model:
-```{r include = FALSE}
-print_original_model <- colnames(select(model_backwards_selection$data, -win_silver_slug)) %>%
-                          paste(collapse = " + ") %>%
-                          paste("win_silver_slug = ", ., sep = "")
-```
->`r print_original_model`
 
+```{r echo=F}
+summary(model)
+```
 
 We tested both backward selection and step-wise selection routines. They both concluded with the same model - we simply used the backward selection model. We did not pursue additional selection procedures.
 
 ## Backward Selected Model
 
-```{r include = FALSE}
-print_back_selected_model <- paste(round(model_backwards_selection$coefficients, digits = 2), names(model_backwards_selection$coefficients), sep = " * ")
-print_back_selected_model[1] <- round(model_backwards_selection$coefficients[1], digits = 2)
-print_back_selected_model <- paste(print_back_selected_model, collapse = " + ")
-print_back_selected_model <- paste("log(odds(win_silver_slug)) = ", print_back_selected_model, sep = "")
+```{r echo=F}
+summary(model_backwards_selection)
 ```
-
->`r print_back_selected_model`
-
 
 ## MultiColinearity
 
@@ -115,6 +106,12 @@ Since we are dealing with a logistic  model, we had to create a linear "side mod
 
 To alleviate the multicolineatity issue, the following variables were removed:
 
+b_games_batted_per_all_games
+b_G_batting
+b_SF
+b_HBP_per_AB
+b_HBP
+
 * Games Played (b_G)
 * Games Played Where Batted (b_G_batting)
 * Runs (b_R)
@@ -122,18 +119,17 @@ To alleviate the multicolineatity issue, the following variables were removed:
 
 ## Revised Backward Selected Model
 
-```{r include = FALSE}
-print_back_selected_model <- paste(round(model_backwards_semifinal$coefficients, digits = 2), names(model_backwards_semifinal$coefficients), sep = " * ")
-print_back_selected_model[1] <- round(model_backwards_semifinal$coefficients[1],digits = 2)
-print_back_selected_model <- paste(print_back_selected_model, collapse = " + ")
-print_back_selected_model <- paste("log(odds(win_silver_slug)) = ", print_back_selected_model, sep = "")
+```{r echo=F}
+summary(model_backwards_semifinal)
 ```
->`r print_back_selected_model`
 
 After removing the x variables that had multicolinearity issues, we then went through and removed non significant variables using a .05 p-value threshold. The variables with the highest p-values were removed one at a time until all variables were significant. Our AIC lowered slightly as well.
 
 ## Final Model
 
+```{r echo=F}
+summary(model_backwards_final)
+```
 
 ```{r include = FALSE}
 print_back_selected_model <- paste(round(model_backwards_final$coefficients, digits = 2), names(model_backwards_final$coefficients), sep = " * ")
@@ -150,9 +146,6 @@ kable(vif(model_backwards_final_lm) %>%
 ```
 
 We now have a final model with only significant variables and have removed variables with multicolinearity:
-
-
-*TODO:* remove comment above
 
 ## Check Fit
 

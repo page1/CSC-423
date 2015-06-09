@@ -140,7 +140,7 @@ model_silver_slug <- function(data){
   
   cut_offs <- seq(0, 1, by = 0.01)
   results_at_cut_off <- find_cut_off_logistic(model_backwards_final, cut_offs, batting_data, which(colnames(batting_data) == "win_silver_slug")[1])
-  
+  results_at_cut_off <- results_at_cut_off[complete.cases(results_at_cut_off),]
   best_cut_off <- results_at_cut_off %>%
     filter(f_measure == max(f_measure, na.rm = T)) %>%
     filter(precision == max(precision, na.rm = T))

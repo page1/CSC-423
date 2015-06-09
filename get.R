@@ -1,4 +1,3 @@
-
 get_awards_players <- function(){
   data <- read.table("data/AwardsPlayers.txt", sep = ",", stringsAsFactors = F)
   names(data) <- c("playerID",
@@ -132,3 +131,4 @@ get_teams <- function(){
   
   return(data)
 }
+

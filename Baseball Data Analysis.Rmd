@@ -273,3 +273,42 @@ In conclusion, our model proves that there is a statistically significant increa
 ## Ideas to Further Improve the Model
 Due to time constraints, some parameters available were not tested. Of specific interest, an interaction model taking into account the players field position might improve the fit since the award is given by field position. Additionally, quantifying the media sentiment toward a player might have helped avoid the Barry Bonds outliers that were detected and made a better model.
 
+# Appendix
+## Analysis Files
+### do.R
+Run the main function in the do file to generate .Rdata files needed when you run `Baseball Data Analysis.Rmd`
+```{r echo=F}
+for (line in readLines(file("do.R", "r"))){
+  cat(line, "\n")
+}
+```
+### get.R
+Getter functions to form the initial data frames.
+```{r echo=F}
+for (line in readLines(file("get.R", "r"))){
+  cat(line, "\n")
+}
+```
+### munge.R
+Mutate the data for analysis.
+```{r echo=F}
+for (line in readLines(file("munge.R", "r"))){
+  cat(line, "\n")
+}
+```
+### analyse.R
+model_silver_slug function will model the create the models used in the report and dump a .Rdata file for use in the markdown.
+```{r echo=F}
+for (line in readLines(file("analyse.R", "r"))){
+  cat(line, "\n")
+}
+```
+## Report Files
+### Baseball Data Analysis.Rmd
+This is the markdown code that generated this document.
+```{r echo=F}
+for (line in readLines(file("Baseball Data Analysis.Rmd", "r"))){
+  cat(line, "\n")
+}
+```
+

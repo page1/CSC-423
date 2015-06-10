@@ -26,3 +26,11 @@ After eliminating variables that did not improve the model, the following variab
 This model makes sense since better players generally hit more balls, have more home runs, steal more bases, strike out less, and are intentionally walked more often (so they don’t hit another home run).
 
 To check the predictive usefulness of the model, several tests were performed on data that had not been used previously. These tests demonstrated that the model correctly identifies over 96% of the players award statuses. This includes identifying nearly 60% of the players that win the award. Further, the players that the model believe will win the award, win the award 50% of the time. This is an excellent result considering less than 2% of players win the award each year.
+
+# Getting Started
+
+1. Open project in RStudio
+2. Install Libraries
+3. Run main function in do.R
+4. knit the .Rmd file
+5. Look at pretty plots

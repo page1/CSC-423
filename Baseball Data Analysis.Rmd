@@ -1,5 +1,6 @@
 ---
 title: "Baseball Data Analysis - Technical Summary"
+author: Scott Page & Alex Dantoft
 output: pdf_document
 ---
 
